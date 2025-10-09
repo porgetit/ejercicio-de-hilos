@@ -1,7 +1,7 @@
 """
 Enunciado:
-- Se tienen dos matrices cuadradas de tamaño n x n.
-- Utilizar únicamente 2 hilos, uno para cada matriz.
+- Se tienen dos matrices cuadradas de tamano n x n.
+- Utilizar unicamente 2 hilos, uno para cada matriz.
 - En la primera fase, cada hilo debe calcular la suma de la diagonal principal de su respectiva matriz y guardar el resultado.
 - En la segunda fase, cada hilo debe mostrar el resultado previamente calculado para su matriz.
 """
@@ -10,13 +10,16 @@ import threading
 from dataclasses import dataclass
 from typing import List
 import random
-import pprint
+from rich.console import Console
+from rich.table import Table
+from rich import box
 
 # -----------------------------
-# Configuración inicial (tamaño n decidido al inicio del programa)
+# Configuracion inicial (tamano n decidido al inicio del programa)
 # -----------------------------
-n: int = 4  # Tamaño de las matrices (n x n)
+n: int = 4  # Tamano de las matrices (n x n)
 random.seed(42)
+console = Console()
 
 # -----------------------------
 # Utilidades simples de matrices
@@ -28,6 +31,40 @@ def crear_matriz(n: int, minimo: int = 1, maximo: int = 9) -> List[List[int]]:
 def suma_diagonal_principal(m: List[List[int]]) -> int:
     """Calcula la suma de la diagonal principal de una matriz cuadrada."""
     return sum(m[i][i] for i in range(len(m)))
+
+def mostrar_matriz(matriz: List[List[int]], titulo: str, columnas_por_bloque: int = 8) -> None:
+    """Muestra la matriz dividiendola en bloques de columnas para mantenerla legible."""
+    if not matriz:
+        console.print(f"[bold red]{titulo}[/]: matriz vacia")
+        return
+
+    total_columnas = len(matriz[0])
+    columnas_por_bloque = max(1, min(columnas_por_bloque, total_columnas))
+
+    for inicio in range(0, total_columnas, columnas_por_bloque):
+        fin = min(inicio + columnas_por_bloque, total_columnas)
+        titulo_bloque = (
+            f"{titulo} (columnas {inicio + 1}-{fin})"
+            if total_columnas > columnas_por_bloque
+            else titulo
+        )
+
+        tabla = Table(
+            title=titulo_bloque,
+            box=box.SIMPLE_HEAD,
+            header_style="bold magenta",
+            show_lines=False,
+            expand=False,
+        )
+        tabla.add_column("Fila", justify="right", style="bold yellow")
+        for col_idx in range(inicio, fin):
+            tabla.add_column(f"C{col_idx + 1}", justify="center")
+
+        for indice, fila in enumerate(matriz, start=1):
+            celdas = [f"{fila[col_idx]:>2}" for col_idx in range(inicio, fin)]
+            tabla.add_row(str(indice), *celdas)
+
+        console.print(tabla)
 
 # -----------------------------
 # Estructura para compartir resultados entre hilos
@@ -47,7 +84,7 @@ class ResultadoDiagonal:
             return self.valor
 
 # -----------------------------
-# "Primera ejecución": cada hilo calcula y ALMACENA la suma de su matriz
+# "Primera ejecucion": cada hilo calcula y ALMACENA la suma de su matriz
 # -----------------------------
 def trabajador_calcular(matriz: List[List[int]], resultado: ResultadoDiagonal, nombre: str) -> None:
     """Hilo que calcula la suma de la diagonal principal y la guarda."""
@@ -55,12 +92,15 @@ def trabajador_calcular(matriz: List[List[int]], resultado: ResultadoDiagonal, n
     resultado.guardar(suma)
 
 # -----------------------------
-# "Segunda ejecución": cada hilo MUESTRA el resultado ya calculado
+# "Segunda ejecucion": cada hilo MUESTRA el resultado ya calculado
 # -----------------------------
 def trabajador_mostrar(resultado: ResultadoDiagonal, etiqueta: str) -> None:
     """Hilo que imprime la suma previamente calculada."""
     suma = resultado.leer()
-    print(f"{etiqueta}: suma diagonal principal = {suma}")
+    console.print(
+        f"[bold green]{etiqueta}[/]: suma diagonal principal = [bold cyan]{suma}[/]",
+        highlight=False,
+    )
 
 # -----------------------------
 # Crear matrices
@@ -68,17 +108,16 @@ def trabajador_mostrar(resultado: ResultadoDiagonal, etiqueta: str) -> None:
 matriz_1 = crear_matriz(n)
 matriz_2 = crear_matriz(n)
 
-print("Matriz 1:")
-pprint.pp(matriz_1)
-print("\nMatriz 2:")
-pprint.pp(matriz_2)
+console.rule("[bold yellow]Matrices generadas")
+mostrar_matriz(matriz_1, "Matriz 1")
+mostrar_matriz(matriz_2, "Matriz 2")
 
 # Contenedores de resultados (uno por matriz)
 res_m1 = ResultadoDiagonal()
 res_m2 = ResultadoDiagonal()
 
 # -----------------------------
-# PRIMERA EJECUCIÓN (cálculo y almacenamiento)
+# PRIMERA EJECUCION (calculo y almacenamiento)
 # -----------------------------
 hilo1 = threading.Thread(target=trabajador_calcular, args=(matriz_1, res_m1, "Hilo 1"), daemon=True)
 hilo2 = threading.Thread(target=trabajador_calcular, args=(matriz_2, res_m2, "Hilo 2"), daemon=True)
@@ -89,8 +128,9 @@ hilo1.join()
 hilo2.join()
 
 # -----------------------------
-# SEGUNDA EJECUCIÓN (mostrar resultados calculados)
+# SEGUNDA EJECUCION (mostrar resultados calculados)
 # -----------------------------
+console.rule("[bold yellow]Resultados")
 hilo1_m = threading.Thread(target=trabajador_mostrar, args=(res_m1, "Hilo 1 (matriz 1)"), daemon=True)
 hilo2_m = threading.Thread(target=trabajador_mostrar, args=(res_m2, "Hilo 2 (matriz 2)"), daemon=True)
 

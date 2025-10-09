@@ -8,10 +8,12 @@ Este programa ejemplifica el uso basico de hilos en Python para trabajar en para
 - Cada matriz tiene un contenedor `ResultadoDiagonal` que guarda de forma segura la suma de su diagonal principal.
 - Fase 1: se crean dos hilos (`trabajador_calcular`) que calculan la suma diagonal de su matriz y almacenan el resultado.
 - Fase 2: se lanzan dos hilos (`trabajador_mostrar`) que leen el valor previamente guardado y lo muestran en pantalla.
+- Las matrices se muestran en bloques de columnas usando `rich` para mantener legible la salida en la consola.
 
 ## Requisitos
 
 - Python 3.10 o superior (se usa anotacion `list[int] | None` y `dataclasses`).
+- Biblioteca `rich` para mejorar la salida en consola (`pip install rich`).
 
 ## Ejecucion
 
