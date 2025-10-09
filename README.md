@@ -29,3 +29,5 @@ La salida muestra las dos matrices generadas y, a continuacion, el valor de la s
 
 - Cambia la variable `n` en `main.py` para ajustar el tamano de las matrices.
 - Modifica los parametros de `crear_matriz` si quieres otros rangos de valores o desactivar la semilla fija (`random.seed(42)`).
+
+> Nota: Este proyecto se elaboro con ayuda del agente Codex usando el modelo GPT5-codex de OpenAI.
