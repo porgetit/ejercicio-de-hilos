@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
 """
-Ejercicio (según enunciado del notebook):
-- Dos matrices n x n
-- Usar SOLO 2 hilos (uno por matriz)
-- Primera ejecución: cada hilo calcula la SUMA de la diagonal PRINCIPAL de su matriz y la almacena
-- Segunda ejecución: cada hilo MUESTRA el resultado calculado para su matriz
-Notas:
-- Código intencionalmente simple, con buenas prácticas y comentarios descriptivos.
+Enunciado:
+- Se tienen dos matrices cuadradas de tamaño n x n.
+- Utilizar únicamente 2 hilos, uno para cada matriz.
+- En la primera fase, cada hilo debe calcular la suma de la diagonal principal de su respectiva matriz y guardar el resultado.
+- En la segunda fase, cada hilo debe mostrar el resultado previamente calculado para su matriz.
 """
 from __future__ import annotations
 import threading
@@ -18,7 +15,7 @@ import pprint
 # -----------------------------
 # Configuración inicial (tamaño n decidido al inicio del programa)
 # -----------------------------
-n: int = 4  # puedes cambiar este valor si deseas probar con otras dimensiones
+n: int = 4  # Tamaño de las matrices (n x n)
 random.seed(42)
 
 # -----------------------------
@@ -33,7 +30,7 @@ def suma_diagonal_principal(m: List[List[int]]) -> int:
     return sum(m[i][i] for i in range(len(m)))
 
 # -----------------------------
-# Estructura para compartir resultados entre hilos de forma segura
+# Estructura para compartir resultados entre hilos
 # -----------------------------
 @dataclass
 class ResultadoDiagonal:
